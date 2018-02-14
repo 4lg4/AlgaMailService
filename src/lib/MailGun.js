@@ -10,40 +10,44 @@ export default class MailGun extends Mail {
     }
 
     send(){
-        return super.send();
+        let opt = {
+            from: this.props.from,
+            to: this._checkEmailAddress(this.props.to),
+            subject: (this.props.env && this.props.env.debug) ? `[MailGun][${new Date().getTime()}] ${this.props.subject}` : this.props.subject,
+            text: this.props.text || this.props.html
+        };
+
+        if(this.props.html) {
+            opt.html = this.props.html;
+        }
+
+        if(this.props.cc) {
+            opt.cc = this._checkEmailAddress(this.props.cc);
+        }
+
+        if(this.props.bcc) {
+            opt.bcc = this._checkEmailAddress(this.props.bcc);
+        }
+
+        this._checkEmail();
+        return super.send(opt);
     }
 
+    _checkEmailAddress(emails) {
+        if(typeof emails === 'string'){
+            emails = [emails];
+        }
 
-
-
-
-
-
-    testSandBox(){
-
-        // Sandbox example
-
-        // curl -s --user 'api:key-0dee7ba4319e4159feb85f743668add6' \
-        // https://api.mailgun.net/v3/sandbox81d965a93ae8468794ae14d7e81f4607.mailgun.org/messages \
-        //      -F from='Mailgun Sandbox <postmaster@sandbox81d965a93ae8468794ae14d7e81f4607.mailgun.org>' \
-        //      -F to='Alga <alga@alga.me>' \
-        //      -F subject='Hello Alga' \
-        //      -F text='Congratulations Alga, you just sent an email with Mailgun!  You are truly awesome!'
-
-
-        const request = new AlgaRequest({
-            url: 'https://api.mailgun.net/v3/sandbox81d965a93ae8468794ae14d7e81f4607.mailgun.org/messages',
-            auth: 'api:key-0dee7ba4319e4159feb85f743668add6'
-        });
-
-        return request.post({
-            body: {
-                from: 'Alga Me (No Reply)<no-reply@alga.me>',
-                to: 'Alga <alga@alga.me>',
-                subject: `Subject - ${new Date().toLocaleString()}`,
-                text: `Copy ${new Date().toLocaleString()}`
+        if(emails instanceof Array) {
+            for(let i=0; emails.length>i; i++){
+                if(!this._validateEmailAddress(emails[i])) {
+                    throw new Error(`Invalid Email Addresses ${emails.toString()}`);
+                }
             }
-        });
 
+            return emails.toString();
+        }
+
+        throw new Error(`Invalid Email Address ${emails}`);
     }
 }

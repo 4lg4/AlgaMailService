@@ -13,7 +13,7 @@ export default class AlgaRequest {
     }
 
     setOptions(options){
-        const opt = options || this.props;
+        const opt = Object.assign({}, this.props, options);
 
         // TODO: Improve this solution
         opt.protocol = 'http:';
@@ -97,27 +97,15 @@ export default class AlgaRequest {
         // add the post length to the request
         Object.assign(this.options.headers, {'Content-Length': Buffer.byteLength(this.options.body)});
 
-        // console.log(this.options);
-        // return true;
-
         return new Promise((resolve,reject)=>{
             const req = this._theRequest(this.options, (res) => {
-                console.log(`STATUS: ${res.statusCode}`);
-                console.log(`HEADERS: ${JSON.stringify(res.headers)}`);
                 res.setEncoding('utf8');
 
-                res.on('data', (chunk) => {
-                    // TODO: Improve this code
-                    try {
-                        console.log(`BODY: ${chunk}`);
-                    } catch (e) {
-                        console.log(e);
-                    }
-                });
+                res.on('data', (chunk) => true);
 
                 res.on('end', () => {
-                    console.log('No more data in response.', res.statusCode);
                     if(res.statusCode && !res.statusCode.toString().match(/^20/)) {
+                        console.error(`problem with request: ${res.statusCode}`);
                         return reject(res.statusCode);
                     }
 
@@ -126,7 +114,7 @@ export default class AlgaRequest {
             });
 
             req.on('error', (e) => {
-                console.error(`problem with request: ${e.message}`);
+                console.error(`problem with request: ${e}`);
                 reject(e.message);
             });
 
