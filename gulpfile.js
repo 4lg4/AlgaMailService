@@ -1,5 +1,6 @@
 const gulp = require('gulp');
 const babel = require('gulp-babel');
+const del = require('del');
 
 // cleanup the dist folder
 gulp.task('default',function () {
