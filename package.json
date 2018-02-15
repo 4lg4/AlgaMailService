@@ -10,7 +10,9 @@
     "test": "echo \"go to README\" && exit 1",
     "start-prod": "npm run build && node ./dist/index.js ",
     "start-dev": "babel-node ./src/index.js ",
-    "build": "gulp"
+    "build": "gulp",
+    "build-docker": "docker build -t alga-mail-service ./",
+    "start-docker": "npm run build-docker && docker container rm algamailservice -f || echo 'already removed' && docker container run -d -p 8080:3000 --name algamailservice alga-mail-service"
   },
   "keywords": [],
   "author": "",
