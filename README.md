@@ -22,7 +22,7 @@ set the config file
     },
     "maxAttempts": 5, // max rand attempts 
     "from": "email@email.com", // default email if not set on the post request
-    "preferred": "", // Service Name or empty
+    "preferred": "", // Service Name or empty for roulette mode
     "debug": "true"  // empty === false
 }
 ````
@@ -51,6 +51,15 @@ POST https://localhost:3000
 all compiled files to /dist folder
 ````bash
 npm run build
+````
+
+#### Docker 
+````bash
+npm run build-docker
+````
+or for development
+````bash
+npm run start-docker
 ````
 
 #### starting service Development
