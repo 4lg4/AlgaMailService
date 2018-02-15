@@ -6,6 +6,7 @@
 import env from './env.json'
 import MailService from './lib/MailService'
 
+import fs from 'fs'
 import http from 'http'
 
 // log unhandled promise rejection
@@ -40,32 +41,57 @@ const parseBody = (req)=>{
 
 const server = http.createServer((req, res)=>{
 
-    return parseBody(req)
-        .then((body)=>{
+    return Promise
+        .resolve()
+        .then(()=>{
 
-            if(req.method !== "POST") {
-                res.writeHead(405, {'Content-Type': 'application/json'});
-                res.end(`{
-                    "code": 405,
-                    "message": "Method Not Allowed"
-                }`);
+            // show frontend
+            if(!req.url.match('api')) {
+                return new Promise((resolve,reject)=> {
+                    fs.readFile(`${__dirname}/frontend/index.html`, function (err, data) {
+                        if (err) {
+                            console.erro(err);
+                            return reject('Frontend missing :s');
+                        }
 
-                return true;
+                        resolve(data);
+                    });
+                }).then((data)=>{
+                    res.writeHead(200, {'Content-Type': 'text/html'});
+                    res.write(data);
+                    res.end();
+                })
             }
 
-            const algaMail = new MailService({
-                env,
-                body
-            });
 
-            return algaMail.send()
-                .then((success)=>{
-                    res.writeHead(200, {'Content-Type': 'application/json'});
-                    res.end(`{
-                        "code": 200,
-                        "message": "${success}"
-                    }`);
-                });
+            // api calls
+            return parseBody(req)
+                .then((body)=>{
+
+                    if(req.method !== "POST") {
+                        res.writeHead(405, {'Content-Type': 'application/json'});
+                        res.end(`{
+                            "code": 405,
+                            "message": "Method Not Allowed"
+                        }`);
+
+                        return true;
+                    }
+
+                    const algaMail = new MailService({
+                        env,
+                        body
+                    });
+
+                    return algaMail.send()
+                        .then((success)=>{
+                            res.writeHead(200, {'Content-Type': 'application/json'});
+                            res.end(`{
+                                "code": 200,
+                                "message": "${success}"
+                            }`);
+                        });
+                })
         })
         .catch((err)=> {
             res.writeHead(500, {'Content-Type': 'application/json'});
