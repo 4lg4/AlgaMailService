@@ -9,14 +9,12 @@
                 type="text" class="form-control"
                 placeholder="" aria-label="">
 
-            <slot name="append" class="input-group-append">
-
-            </slot>
+            <!--<slot name="append" class="input-group-append"></slot>-->
         </div>
 
         <div v-if="error" class="alert alert-danger m-0" role="alert">
             <div v-for="e,k in error">
-                {{e.message}}
+                <small>{{e.message}}</small>
             </div>
         </div>
     </div>
@@ -52,5 +50,9 @@
 
         /*width: 80%;*/
         /*margin: auto;*/
+    }
+
+    .display {
+        display: none;
     }
 </style>

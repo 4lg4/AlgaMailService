@@ -4,7 +4,9 @@
         <div v-for="item,k in collection" :key="item.id">
             <AppInput @change="change" :id="item.id" :error="item.error" class="mb-1" :key="item.id">
                 <div slot="append">
-                    <AppButton type="danger" theTitle="-" @click="remove(item.id)" v-if="(Object.keys(collection).length > 1)"></AppButton>
+                    <AppButton type="danger" theTitle="-" @click="remove(item.id)"
+                               v-if="(Object.keys(collection).length > 1)"
+                               class="no-left-border"></AppButton>
                 </div>
             </AppInput>
         </div>
@@ -118,5 +120,11 @@
 
     .full {
         width: 100%;
+    }
+
+    .no-left-border {
+        border-left: none;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
     }
 </style>

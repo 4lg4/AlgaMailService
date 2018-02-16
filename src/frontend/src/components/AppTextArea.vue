@@ -1,5 +1,5 @@
 <template>
-    <textarea></textarea>
+    <textarea class="form-control"></textarea>
 </template>
 
 
