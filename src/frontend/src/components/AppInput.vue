@@ -15,7 +15,9 @@
         </div>
 
         <div v-if="error" class="alert alert-danger m-0" role="alert">
-            {{error}}
+            <div v-for="e,k in error">
+                {{e.message}}
+            </div>
         </div>
     </div>
 </template>
@@ -28,7 +30,7 @@
             title: 'Button',
             value: '',
             id: '',
-            error: ''
+            error: {}
         },
         methods: {
             change(e){
