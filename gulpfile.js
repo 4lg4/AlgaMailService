@@ -1,5 +1,6 @@
 const gulp = require('gulp');
 const babel = require('gulp-babel');
+const del = require('del');
 
 // cleanup the dist folder
 gulp.task('default',function () {
@@ -10,7 +11,8 @@ gulp.task('default',function () {
 
 gulp.task('tasks',[
     'compile',
-    'copy'
+    'copy',
+    'copy-frontend'
 ]);
 
 gulp.task('compile', function(cb) {
@@ -26,6 +28,13 @@ gulp.task('compile', function(cb) {
 gulp.task('copy', function(cb) {
     gulp.src('./src/env.json')
         .pipe(gulp.dest('./dist/'));
+
+    cb();
+});
+
+gulp.task('copy-frontend', function(cb) {
+    gulp.src('./src/frontend/dist/**/*')
+        .pipe(gulp.dest('./dist/frontend/'));
 
     cb();
 });

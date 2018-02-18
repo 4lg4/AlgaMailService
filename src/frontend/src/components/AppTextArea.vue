@@ -1,5 +1,5 @@
 <template>
-    <textarea class="form-control"></textarea>
+    <textarea class="AppTextArea form-control" @keyup="change"></textarea>
 </template>
 
 
@@ -14,12 +14,9 @@
             }
         },
         methods: {
-            click(){
-                this.$emit('click');
-            }
-        },
-        mounted(){
-//            console.log(this.props);
+            change(e){
+                this.$emit('change',e.target.value);
+            },
         }
     }
 </script>
@@ -28,6 +25,6 @@
     /*@import '../../css/root.css';*/
 
     .AppTextArea {
-
+        min-height: 150px;
     }
 </style>

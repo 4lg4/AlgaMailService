@@ -16,7 +16,8 @@
         name: 'AppButton',
         props: {
             type: '',
-            theTitle: ''
+            theTitle: '',
+            size: 'lg' // TODO: implement the button size using props
         },
         methods: {
             click(){
