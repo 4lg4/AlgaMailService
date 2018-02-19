@@ -116,7 +116,7 @@
                 this.isHtmlEmail = value;
             },
             submit() {
-                this.emailSend(this.getEmail);
+                this.emailSend(this.getEmail).then((a)=>console.log('emailSend', a));
             }
         }
 

@@ -8,6 +8,7 @@
   },
   "scripts": {
     "test": "echo \"go to README\" && exit 1",
+    "install": "npm install && cd ./src/frontend && npm install",
     "start-prod": "node ./dist/index.js ",
     "start-dev": "babel-node ./src/index.js",
     "build": "gulp && cd ./src/frontend && npm run build",

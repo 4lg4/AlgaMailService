@@ -200,10 +200,11 @@ export default {
         },
 
         emailSend(state,payload){
+            // TODO: move this url composition to the main store core
             return request
-                .post('/api', payload)
+                .post(`${window.location.protocol}//api.${window.location.hostname}:${window.location.port}`, payload)
                 .then(()=>console.log('Success'))
-                .catch(()=>console.log('Error'));
+                .catch((err)=>err);
         }
     },
 

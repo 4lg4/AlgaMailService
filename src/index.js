@@ -40,80 +40,93 @@ const parseBody = (req)=>{
     })
 };
 
-const server = http.createServer((req, res)=>{
-    return Promise
-        .resolve()
-        .then(()=>{
+const staticCall = (req,res)=>{
+    // Tailor made solution to serve the frontend files
+    const types ={
+        '.js': 'text/javascript',
+        '.css': 'text/css',
+        '.ico': 'image/x-icon',
+        '.html': 'text/html',
+        '': 'text/html'
+    };
 
-            // show frontend
-            if(!req.url.match('api')) {
-                const types ={
-                    '.js': 'text/javascript',
-                    '.css': 'text/css',
-                    '.ico': 'image/x-icon',
-                    '.html': 'text/html',
-                    '': 'text/html'
-                };
+    let file = `${__dirname}/frontend${req.url}`;
+    if (req.url === "/") {
+        file = `${__dirname}/frontend${req.url}index.html`;
+    }
 
-                let file = `${__dirname}/frontend${req.url}`;
-                if (req.url === "/") {
-                    file = `${__dirname}/frontend${req.url}index.html`;
-                }
-
-                console.log('URL ', req.url, types[path.extname(file)]);
-
-                return new Promise((resolve,reject)=> {
-                    fs.readFile(file, function (err, data) {
-                        if (err) {
-                            console.error(err);
-                            return reject('Frontend missing :s');
-                        }
-
-                        resolve(data);
-                    });
-                }).then((data)=>{
-                    res.writeHead(200, {'Content-Type': types[path.extname(file)]});
-                    res.write(data);
-                    res.end();
-                })
+    return new Promise((resolve,reject)=> {
+        fs.readFile(file, function (err, data) {
+            if (err) {
+                console.error(err);
+                return reject('Frontend missing :s');
             }
 
+            resolve(data);
+        });
+    }).then((data)=>{
+        res.writeHead(200, {'Content-Type': types[path.extname(file)]});
+        res.write(data);
+        res.end();
+    });
+};
 
-            // api calls
-            return parseBody(req)
-                .then((body)=>{
+const apiCall = (req,res)=>{
+    return parseBody(req)
+        .then((body)=>{
 
-                    if(req.method !== "POST") {
-                        res.writeHead(405, {'Content-Type': 'application/json'});
-                        res.end(`{
+            if(req.method !== "POST") {
+                res.writeHead(405, {'Content-Type': 'application/json'});
+                res.end(`{
                             "code": 405,
                             "message": "Method Not Allowed"
                         }`);
 
-                        return true;
-                    }
+                return true;
+            }
 
-                    const algaMail = new MailService({
-                        env,
-                        body
-                    });
+            const algaMail = new MailService({
+                env,
+                body
+            });
 
-                    return algaMail.send()
-                        .then((success)=>{
-                            res.writeHead(200, {'Content-Type': 'application/json'});
-                            res.end(`{
-                                "code": 200,
-                                "message": "${success}"
-                            }`);
-                        });
-                })
+            return algaMail.send()
+                .then((success)=>{
+                    res.writeHead(200, {'Content-Type': 'application/json'});
+                    res.end(JSON.stringify({
+                        "code": 200,
+                        "message": success
+                    }));
+                });
+        });
+};
+
+const server = http.createServer((req, res)=>{
+    return Promise
+        .resolve()
+        .then(()=>{
+            // test minimal service configuration
+            if(env.services && !Object.keys(env.services)[0].url){
+                res.writeHead(500, {'Content-Type': 'application/json'});
+                return res.end(JSON.stringify({
+                    "code": 500,
+                    "message": 'Verify the env config file of the backend'
+                }));
+            }
+
+            // TODO: change this validation to regex more accurated
+            if(req.headers.host.indexOf('api.') === -1) {
+                return staticCall(req,res);
+            }
+
+            return apiCall(req,res);
         })
         .catch((err)=> {
             res.writeHead(500, {'Content-Type': 'application/json'});
-            res.end(`{
+            res.end(JSON.stringify({
                 "code": 500,
-                "message": "${err}"
-            }`);
+                "message": err
+            }));
         });
 });
 
