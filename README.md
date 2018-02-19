@@ -65,7 +65,7 @@ npm run docker-start
 
 build and run (after finished just open localhost:8080)
 ````bash
-npm run build && npm run build-docker && npm run docker-start
+npm run build && npm run build-docker && npm run start-docker
 ````
 
 ##### interface + api running on localhost:8080
