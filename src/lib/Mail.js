@@ -64,7 +64,7 @@ export default class Mail {
         }
 
         for(let i=0; emails.length>i; i++){
-            if(this._emailAddress.indexOf(emails[i]) >- 1) {
+            if(!!this._emailAddress.find((e)=>(e === emails[i]))) {
                 return false;
             }
 

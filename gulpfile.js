@@ -15,10 +15,9 @@ gulp.task('tasks',[
 ]);
 
 gulp.task('compile', function(cb) {
-    gulp.src('./src/**/*.js')
-        .pipe(babel({
-            presets: ['es2015']
-        }))
+    gulp.src(['./src/**/*.js', '!./src/frontend/**/*'])
+        .pipe(babel())
+        .on('error', console.error.bind(console))
         .pipe(gulp.dest('./dist/'));
 
     cb();
@@ -27,6 +26,13 @@ gulp.task('compile', function(cb) {
 gulp.task('copy', function(cb) {
     gulp.src('./src/env.json')
         .pipe(gulp.dest('./dist/'));
+
+    cb();
+});
+
+gulp.task('copy-frontend', function(cb) {
+    gulp.src(['./src/frontend/dist/**/*', '!./src/frontend/dist/**/*.map '])
+        .pipe(gulp.dest('./dist/frontend/'));
 
     cb();
 });

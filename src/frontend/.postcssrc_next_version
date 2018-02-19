@@ -1,0 +1,15 @@
+{
+    "plugins": {
+        "autoprefixer": {},
+        "postcss-import": {},
+        "postcss-cssnext": {
+            "browsers": ["last 2 versions", "> 2%"]
+        },
+        "cssnano": {
+            "zindex": false,
+            "minimize": {
+                "zindex": false
+            }
+        }
+    }
+}

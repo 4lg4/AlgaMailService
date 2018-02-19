@@ -74,7 +74,7 @@ describe(`AlgaRequest`, ()=> {
     });
 
     describe('post', ()=> {
-        const data = {
+        const body = {
             from: 'a',
             to: 'b',
             subject: 'subject',
@@ -87,7 +87,7 @@ describe(`AlgaRequest`, ()=> {
             });
 
             request
-                .post(data)
+                .post({ body })
                 .then((r)=>assert.ok(r))
         });
 
@@ -97,7 +97,7 @@ describe(`AlgaRequest`, ()=> {
             });
 
             request
-                .post(data)
+                .post({ body })
                 .then((r)=>assert.ok((typeof r === 'string')))
         });
     });

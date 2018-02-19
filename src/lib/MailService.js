@@ -34,12 +34,13 @@ export default class MailService {
 
     send(){
         if(this.retries > this.props.env.maxAttempts) {
-            throw new Error(`max attempts (${this.props.env.maxAttempts}) executed, check the config file or the connection / ${this._errors}`);
+            return Promise.reject(`max attempts (${this.props.env.maxAttempts}) executed / ${this._errors}`);
         }
 
         this.setService();
 
-        return this.service
+        return this
+            .service
             .send()
             .catch((err)=>{
                 console.error('MailService:send:ERROR');

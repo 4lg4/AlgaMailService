@@ -3,9 +3,14 @@
  */
 "use strict";
 
+
+// TODO: abstract the tailor made server into a class lib/AlgaServer.js (upcoming version)
+
 import env from './env.json'
 import MailService from './lib/MailService'
 
+import fs from 'fs'
+import path from 'path'
 import http from 'http'
 
 // log unhandled promise rejection
@@ -38,17 +43,49 @@ const parseBody = (req)=>{
     })
 };
 
-const server = http.createServer((req, res)=>{
+const staticCall = (req,res)=>{
+    // Tailor made solution to serve the frontend files
+    const types ={
+        '.js': 'text/javascript',
+        '.css': 'text/css',
+        '.ico': 'image/x-icon',
+        '.html': 'text/html',
+        '': 'text/html'
+    };
 
+    let file = `${__dirname}/frontend${req.url}`;
+    if (req.url === "/") {
+        file = `${__dirname}/frontend${req.url}index.html`;
+    }
+
+    return new Promise((resolve,reject)=> {
+        fs.readFile(file, function (err, data) {
+            if (err) {
+                console.error(err);
+                return reject('Frontend missing :s');
+            }
+
+            resolve(data);
+        });
+    }).then((data)=>{
+        res.writeHead(200, {
+            // 'Access-Control-Allow-Origin': '*',
+            'Content-Type': types[path.extname(file)]
+        });
+        res.write(data);
+        res.end();
+    });
+};
+
+const apiCall = (req,res)=>{
     return parseBody(req)
         .then((body)=>{
-
             if(req.method !== "POST") {
                 res.writeHead(405, {'Content-Type': 'application/json'});
-                res.end(`{
+                res.end(JSON.stringify({
                     "code": 405,
                     "message": "Method Not Allowed"
-                }`);
+                }));
 
                 return true;
             }
@@ -58,21 +95,56 @@ const server = http.createServer((req, res)=>{
                 body
             });
 
-            return algaMail.send()
+            return algaMail
+                .send()
                 .then((success)=>{
                     res.writeHead(200, {'Content-Type': 'application/json'});
-                    res.end(`{
+                    res.end(JSON.stringify({
                         "code": 200,
-                        "message": "${success}"
-                    }`);
+                        "message": success
+                    }));
                 });
+        });
+};
+
+const server = http.createServer((req, res)=>{
+    return Promise
+        .resolve()
+        .then(()=>{
+            // TODO: add better security for this implementation
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            res.setHeader('Access-Control-Request-Method', '*');
+            res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET');
+            res.setHeader('Access-Control-Allow-Headers', '*');
+            if ( req.method === 'OPTIONS' ) {
+                res.writeHead(200);
+                res.end();
+                return;
+            }
+
+            // test minimal service configuration
+            if(env.services && !env.services[Object.keys(env.services)[0]].url){
+                res.writeHead(500, {'Content-Type': 'application/json'});
+                return res.end(JSON.stringify({
+                    "code": 500,
+                    "message": 'Verify the env config file of the backend'
+                }));
+            }
+
+            // TODO: change this validation to regex more accurated
+            if(req.headers.host.indexOf('api.') === -1) {
+                return staticCall(req,res);
+            }
+
+            return apiCall(req,res);
         })
         .catch((err)=> {
+            console.error('##### err',err);
             res.writeHead(500, {'Content-Type': 'application/json'});
-            res.end(`{
+            res.end(JSON.stringify({
                 "code": 500,
-                "message": "${err}"
-            }`);
+                "message": err
+            }));
         });
 });
 
