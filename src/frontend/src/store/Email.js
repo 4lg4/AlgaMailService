@@ -1,6 +1,7 @@
 /**
  * Created by www.Alga.me on 18/2/18.
  */
+import request from 'axios'
 
 const getEmailAddresses = (emails)=>{
     if(typeof emails === 'string'){
@@ -196,6 +197,13 @@ export default {
                 this.commit('emailUpdateText', state.html.replace(/<[^>]+>/g, '')); // TODO: improve the html stripping tags, only a simplified version for this demo purpose
             }
             state.invalid.html = (state.html.length === 0);
+        },
+
+        emailSend(state,payload){
+            return request
+                .post('/api', payload)
+                .then(()=>console.log('Success'))
+                .catch(()=>console.log('Error'));
         }
     },
 
@@ -248,6 +256,10 @@ export default {
 
         emailUpdateHtml(ctx,payload){
             this.commit('emailUpdateHtml',payload);
+        },
+
+        emailSend(ctx,payload){
+            this.commit('emailSend',payload);
         }
     }
 }

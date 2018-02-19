@@ -7,6 +7,7 @@ import env from './env.json'
 import MailService from './lib/MailService'
 
 import fs from 'fs'
+import path from 'path'
 import http from 'http'
 
 // log unhandled promise rejection
@@ -40,24 +41,38 @@ const parseBody = (req)=>{
 };
 
 const server = http.createServer((req, res)=>{
-
     return Promise
         .resolve()
         .then(()=>{
 
             // show frontend
             if(!req.url.match('api')) {
+                const types ={
+                    '.js': 'text/javascript',
+                    '.css': 'text/css',
+                    '.ico': 'image/x-icon',
+                    '.html': 'text/html',
+                    '': 'text/html'
+                };
+
+                let file = `${__dirname}/frontend${req.url}`;
+                if (req.url === "/") {
+                    file = `${__dirname}/frontend${req.url}index.html`;
+                }
+
+                console.log('URL ', req.url, types[path.extname(file)]);
+
                 return new Promise((resolve,reject)=> {
-                    fs.readFile(`${__dirname}/frontend/index.html`, function (err, data) {
+                    fs.readFile(file, function (err, data) {
                         if (err) {
-                            console.erro(err);
+                            console.error(err);
                             return reject('Frontend missing :s');
                         }
 
                         resolve(data);
                     });
                 }).then((data)=>{
-                    res.writeHead(200, {'Content-Type': 'text/html'});
+                    res.writeHead(200, {'Content-Type': types[path.extname(file)]});
                     res.write(data);
                     res.end();
                 })

@@ -58,12 +58,6 @@
                             </AppFormGroup>
                         </div>
                     </div>
-                    <hr>
-                    <div class="row">
-                        <div class="col-sm-12">
-                            {{getEmail}}
-                        </div>
-                    </div>
                 </div>
                 <div slot="footer">
                     <AppButton theTitle="Submit" type="success" @click="submit" :isDisabled="emailIsInvalid"></AppButton>
@@ -113,7 +107,7 @@
             ...mapActions([
                 'emailAddTo', 'emailUpdateTo', 'emailRemoveTo', 'emailAddCc',
                 'emailUpdateCc', 'emailRemoveCc', 'emailUpdateSubject',
-                'emailUpdateText', 'emailUpdateHtml'
+                'emailUpdateText', 'emailUpdateHtml', 'emailSend'
             ]),
             clearErrors() {
                 this.errors = null;
@@ -122,7 +116,7 @@
                 this.isHtmlEmail = value;
             },
             submit() {
-                console.log('submit',this.getEmail, this.emailIsInvalid);
+                this.emailSend(this.getEmail);
             }
         }
 
