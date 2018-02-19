@@ -8,7 +8,7 @@ const getEmailAddresses = (emails)=>{
     }
 
     if(emails instanceof Array){
-        return (emails.map((email)=>email.value)).toString();
+        return (emails.map((email)=>email.value)).toString().toLowerCase();
     }
 };
 
@@ -48,7 +48,14 @@ export default {
         subject: '',
         text: '',
         html: '',
-        invalid: true
+        invalid: {
+            to: true,
+            cc: false,
+            // bcc: true,
+            subject: true,
+            text: true,
+            html: false
+        }
     },
 
     getters: {
@@ -100,7 +107,13 @@ export default {
         },
 
         emailIsInvalid(state){
-            return state.invalid;
+            for(const k in state.invalid) {
+                if(state.invalid[k]) {
+                    return true;
+                }
+            }
+
+            return false;
         }
     },
 
@@ -109,39 +122,17 @@ export default {
             state[payload.type].push(Object.assign({}, defaults.emailAddressModel.model, { id: new Date().getTime() }));
         },
         emailUpdate(state,data){
-            console.log('Store:Email:emailUpdate', data);
-
             const {type,payload} = data;
             const {id,value} = payload;
 
-            // state[type] = state[type].map((item)=>{
-            //     if(item.id !== id) {
-            //         return item;
-            //     }
-            //
-            //     item.errors = [];
-            //     state.invalid = false;
-            //
-            //     if (value && !isEmail(value.trim())) {
-            //         item.errors.push(defaults.emailAddressModel.invalid);
-            //         state.invalid = true;
-            //     }
-            //
-            //     return {
-            //         id,
-            //         value,
-            //         errors: item.errors
-            //     };
-            // });
-
-            state.invalid = false;
+            state.invalid[type] = false;
 
             const item = state[type].find((item)=>(item.id === id));
             item.errors = [];
 
             if (value && !isEmail(value.trim())) {
                 item.errors.push(defaults.emailAddressModel.invalid);
-                state.invalid = true;
+                state.invalid[type] = true;
             }
 
             Object.assign(item, {
@@ -152,10 +143,10 @@ export default {
 
 
             state[type] = state[type].map((item)=>{
-                if(item.value === value && item.id !== id){
+                if(item.value.toLowerCase() === value.toLowerCase() && item.id !== id){
+                    state.invalid[type] = true;
                     if(!item.errors.find((error)=>(error.id === 'duplicated'))) {
                         item.errors.push(defaults.emailAddressModel.duplicated);
-                        state.invalid = true;
                     }
                 } else {
                     item.errors = item.errors.filter((error)=>(error.id !== 'duplicated'));
@@ -166,22 +157,26 @@ export default {
         },
 
         emailRemove(state,payload){
-            console.log('Store:Email:emailRemove', payload);
-
             const {type, id} = payload;
             state[type] = state[type].filter((item)=>item.id !== id);
         },
 
         emailUpdateSubject(state,payload){
             state.subject = payload;
+            state.invalid.subject = (state.subject.length < 3);
         },
 
         emailUpdateText(state,payload){
             state.text = payload;
+            state.invalid.text = (state.text.length === 0);
         },
 
         emailUpdateHtml(state,payload){
             state.html = payload;
+            if(state.html) {
+                this.commit('emailUpdateText', state.html.replace(/<[^>]+>/g, '')); // TODO: improve the html stripping tags, only a simplified version for this demo purpose
+            }
+            state.invalid.html = (state.html.length === 0);
         }
     },
 

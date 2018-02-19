@@ -48,14 +48,7 @@
             },
             remove(){
                 this.$emit('remove', this.id);
-            },
-            getErrors(){
-//                console.log('getErrors',this.model.errors);
-//                return (this.errors && this.errors.length > 0);
             }
-        },
-        created(){
-            console.log('created', this.errors);
         }
 
     }

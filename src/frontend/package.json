@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve --open",
-    "serve-dist": "babel-node ./server.js",
+    "__development-use-only": "babel-node ./server.js",
     "build": "vue-cli-service build",
     "test": "vue-cli-service test"
   },
@@ -19,7 +19,6 @@
     "@vue/cli-service": "^3.0.0-alpha.13",
     "@vue/test-utils": "^1.0.0-beta.10",
     "chai": "^4.1.2",
-    "express": "^4.16.2",
     "postcss-cssnext": "^3.1.0",
     "postcss-import": "^11.1.0",
     "vue-template-compiler": "^2.5.13"

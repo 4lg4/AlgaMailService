@@ -1,5 +1,5 @@
 <template>
-    <textarea class="AppTextArea form-control" @keyup="change"></textarea>
+    <textarea class="AppTextArea form-control" @keyup="change">{{val}}</textarea>
 </template>
 
 
@@ -7,7 +7,8 @@
     export default {
         name: 'AppTextArea',
         props: {
-            title: 'Button'
+            title: 'Button',
+            val: ''
         },
         data() {
             return {

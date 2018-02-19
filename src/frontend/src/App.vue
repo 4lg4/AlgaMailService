@@ -13,6 +13,8 @@
             <AppCard theTitle="New Email">
                 <div slot="body">
 
+                    <AppAlert v-if="errors" theTitle="Ooops... something went wrong" @close="clearErrors">{{errors}}</AppAlert>
+
                     <div class="row">
                         <div class="col-sm-12 col-md-6">
                             <AppFormGroup theTitle="To:">
@@ -37,14 +39,22 @@
 
                     <hr>
                     <div class="row">
-                        <div class="col-sm-12 col-md-6">
-                            <AppFormGroup theTitle="Text body">
-                                <AppTextArea @change="emailUpdateText"></AppTextArea>
+                        <div class="col-sm-12">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-primary" :class="{ active: (!isHtmlEmail) }" @click="setIsHtmlEmail(false)">Text</button>
+                                <button type="button" class="btn btn-primary" :class="{ active: (isHtmlEmail) }" @click="setIsHtmlEmail(true)">Html</button>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-12" :class="{'d-none': isHtmlEmail}">
+                            <AppFormGroup>
+                                <AppTextArea @change="emailUpdateText" placeholder="my pure text" :val="getEmailText"></AppTextArea>
                             </AppFormGroup>
                         </div>
-                        <div class="col-sm-12 col-md-6">
-                            <AppFormGroup theTitle="Html body">
-                                <AppTextArea @change="emailUpdateHtml"></AppTextArea>
+
+                        <div class="col-sm-12" :class="{'d-none': !isHtmlEmail}">
+                            <AppFormGroup>
+                                <AppTextArea @change="emailUpdateHtml" placeholder="<div style='color:red;'>my html</div>" :val="getEmailHtml"></AppTextArea>
                             </AppFormGroup>
                         </div>
                     </div>
@@ -56,7 +66,7 @@
                     </div>
                 </div>
                 <div slot="footer">
-                    <AppButton theTitle="Submit" type="success" @click="submit" :disabled="emailIsInvalid"></AppButton>
+                    <AppButton theTitle="Submit" type="success" @click="submit" :isDisabled="emailIsInvalid"></AppButton>
                 </div>
             </AppCard>
         </div>
@@ -76,6 +86,7 @@
     import AppMultiple from './components/AppMultiple.vue'
     import AppFormGroup from './components/AppFormGroup.vue'
     import AppCard from './components/AppCard.vue'
+    import AppAlert from './components/AppAlert.vue'
 
     export default {
         name: 'App',
@@ -85,18 +96,18 @@
             AppInput,
             AppMultiple,
             AppFormGroup,
-            AppCard
+            AppCard,
+            AppAlert
         },
-        data() {
+        data(){
             return {
-                email: {
-                    subject: {}
-                }
-            };
+                isHtmlEmail: false,
+                errors: 'lalalalaal'
+            }
         },
         computed: {
             ...mapGetters([
-                'to','cc', 'getEmail', 'emailIsInvalid'
+                'to','cc', 'getEmail', 'emailIsInvalid', 'getEmailText', 'getEmailHtml'
             ])
         },
         methods: {
@@ -105,10 +116,14 @@
                 'emailUpdateCc', 'emailRemoveCc', 'emailUpdateSubject',
                 'emailUpdateText', 'emailUpdateHtml'
             ]),
+            clearErrors() {
+                this.errors = null;
+            },
+            setIsHtmlEmail(value){
+                this.isHtmlEmail = value;
+            },
             submit() {
-                console.log('subject',this.email);
-//                console.log('AppMultipleTo',this.$refs.AppMultipleTo.getValue('array'));
-//                console.log('AppMultipleCC',this.$refs.AppMultipleCC.getValue('array'));
+                console.log('submit',this.getEmail, this.emailIsInvalid);
             }
         }
 

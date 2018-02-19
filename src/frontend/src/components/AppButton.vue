@@ -1,11 +1,14 @@
 <template>
     <button class="AppButton btn btn-lg"
             :class="{
-                'btn-success': (type === 'success'),
-                'btn-primary': (!type),
-                'btn-danger': (type === 'danger')
+                'btn-success': (!isDisabled && type === 'success'),
+                'btn-primary': (!isDisabled && !type),
+                'btn-danger': (!isDisabled && type === 'danger'),
+                'btn-dark': (isDisabled)
             }"
-            @click="click">
+            @click="click"
+            :disabled="isDisabled"
+    >
         {{ theTitle }}
     </button>
 </template>
@@ -17,6 +20,7 @@
         props: {
             type: '',
             theTitle: '',
+            isDisabled: false,
             size: 'lg' // TODO: implement the button size using props
         },
         methods: {
