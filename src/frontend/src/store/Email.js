@@ -114,6 +114,25 @@ export default {
             }
 
             return false;
+        },
+
+        duplicates(state){
+
+            // TODO: get a better solution for this bit and add bcc on the test
+            if(state.to && state.cc
+                && (!state.invalid.to && !state.invalid.cc)
+                && (state.to.length > 0 && state.cc.length > 0)) {
+
+                for (let i = 0; i < state.cc.length; i++) {
+                    for (let e = 0; e < state.to.length; e++) {
+                        if(state.cc[i].value.toLowerCase() === state.to[e].value.toLowerCase()){
+                            return `email address (${state.to[e].value}) duplicated on to and cc lists`;
+                        }
+                    }
+                }
+            }
+
+            return false;
         }
     },
 
@@ -230,6 +249,5 @@ export default {
         emailUpdateHtml(ctx,payload){
             this.commit('emailUpdateHtml',payload);
         }
-
     }
 }

@@ -13,7 +13,7 @@
             <AppCard theTitle="New Email">
                 <div slot="body">
 
-                    <AppAlert v-if="errors" theTitle="Ooops... something went wrong" @close="clearErrors">{{errors}}</AppAlert>
+                    <AppAlert v-if="duplicates" theTitle="Ooops... something went wrong" @close="clearErrors" :close="!duplicates">{{duplicates}}</AppAlert>
 
                     <div class="row">
                         <div class="col-sm-12 col-md-6">
@@ -101,13 +101,12 @@
         },
         data(){
             return {
-                isHtmlEmail: false,
-                errors: 'lalalalaal'
+                isHtmlEmail: false
             }
         },
         computed: {
             ...mapGetters([
-                'to','cc', 'getEmail', 'emailIsInvalid', 'getEmailText', 'getEmailHtml'
+                'to','cc', 'getEmail', 'emailIsInvalid', 'getEmailText', 'getEmailHtml', 'duplicates'
             ])
         },
         methods: {

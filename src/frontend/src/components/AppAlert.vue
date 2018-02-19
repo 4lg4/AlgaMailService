@@ -3,7 +3,7 @@
         <h4 class="alert-heading">
             {{theTitle}}
 
-            <button type="button" class="close" @click="close">
+            <button type="button" class="close" @click="closeButton" v-if="close">
                 <span>&times;</span>
             </button>
         </h4>
@@ -17,10 +17,11 @@
     export default {
         name: 'AppAlert',
         props: {
-            theTitle: ''
+            theTitle: '',
+            close: false
         },
         methods: {
-            close(){
+            closeButton(){
                 this.$emit('close');
             },
         }
