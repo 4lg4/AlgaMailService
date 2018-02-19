@@ -41,6 +41,7 @@ POST https://localhost:3000
 {
 	"from": "no-reply@email.com",
 	"to": "to@email.com",
+	"cc": ["cc1@email.com", "cc2@email.com"],
 	"subject": "The Subject",
 	"text": "text email part",
 	"html": "<div style='color:red;'>HTML</div>"
