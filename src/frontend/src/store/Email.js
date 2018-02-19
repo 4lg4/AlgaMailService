@@ -9,8 +9,16 @@ const getEmailAddresses = (emails)=>{
     }
 
     if(emails instanceof Array){
-        return (emails.map((email)=>email.value)).toString().toLowerCase();
+        return (emails.map((email)=>email.value));
     }
+};
+
+const emailNormalize = (email)=>{
+    if(!email) {
+        return '';
+    }
+
+    return email.toLowerCase().trim();
 };
 
 const isEmail = (email)=> {
@@ -19,6 +27,24 @@ const isEmail = (email)=> {
     }
 
     return !!(email.match(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/));
+};
+
+const checkDups = (state)=> {
+    // TODO: get a better solution for this bit and add bcc on the test
+    if(state.to && state.cc
+        && (!state.invalid.to && !state.invalid.cc)
+        && (state.to.length > 0 && state.cc.length > 0)) {
+
+        for (let i = 0; i < state.cc.length; i++) {
+            for (let e = 0; e < state.to.length; e++) {
+                if(state.cc[i].value && state.to[e].value && (state.cc[i].value === state.to[e].value)){
+                    return `email address (${state.to[e].value}) duplicated on to and cc lists`;
+                }
+            }
+        }
+    }
+
+    return false;
 };
 
 const defaults = {
@@ -56,7 +82,10 @@ export default {
             subject: true,
             text: true,
             html: false
-        }
+        },
+        emailSendStatus: false,
+        emailSendStatusMessage: '',
+        duplicates: ''
     },
 
     getters: {
@@ -72,21 +101,21 @@ export default {
             return state.bcc;
         },
 
-        getEmailTo(state){
-            return getEmailAddresses(state.to);
-        },
-
-        getEmailCc(state){
-            return getEmailAddresses(state.cc);
-        },
-
-        getEmailBcc(state){
-            return getEmailAddresses(state.bcc);
-        },
-
-        getEmailSubject(state){
-            return state.subject;
-        },
+        // getEmailTo(state){
+        //     return getEmailAddresses(state.to);
+        // },
+        //
+        // getEmailCc(state){
+        //     return getEmailAddresses(state.cc);
+        // },
+        //
+        // getEmailBcc(state){
+        //     return getEmailAddresses(state.bcc);
+        // },
+        //
+        // getEmailSubject(state){
+        //     return state.subject;
+        // },
 
         getEmailText(state){
             return state.text;
@@ -96,11 +125,30 @@ export default {
             return state.html;
         },
 
+        emailSendStatus(state){
+            return state.emailSendStatus;
+        },
+
+        emailGetMessages(state){
+            const dups = checkDups(state);
+
+            if(dups) {
+                return {
+                    status: 'error',
+                    message: dups
+                };
+            }
+            return {
+                status: state.emailSendStatus,
+                message: state.emailSendStatusMessage
+            };
+        },
+
         getEmail(state){
             return {
                 to: getEmailAddresses(state.to),
                 cc: getEmailAddresses(state.cc),
-                bcc: getEmailAddresses(state.bcc),
+                // bcc: getEmailAddresses(state.bcc), // TODO: upcoming
                 subject: state.subject,
                 text: state.text,
                 html: state.html
@@ -115,25 +163,6 @@ export default {
             }
 
             return false;
-        },
-
-        duplicates(state){
-
-            // TODO: get a better solution for this bit and add bcc on the test
-            if(state.to && state.cc
-                && (!state.invalid.to && !state.invalid.cc)
-                && (state.to.length > 0 && state.cc.length > 0)) {
-
-                for (let i = 0; i < state.cc.length; i++) {
-                    for (let e = 0; e < state.to.length; e++) {
-                        if(state.cc[i].value.toLowerCase() === state.to[e].value.toLowerCase()){
-                            return `email address (${state.to[e].value}) duplicated on to and cc lists`;
-                        }
-                    }
-                }
-            }
-
-            return false;
         }
     },
 
@@ -144,26 +173,29 @@ export default {
         emailUpdate(state,data){
             const {type,payload} = data;
             const {id,value} = payload;
+            const myValue = emailNormalize(value);
 
             state.invalid[type] = false;
 
             const item = state[type].find((item)=>(item.id === id));
             item.errors = [];
 
-            if (value && !isEmail(value.trim())) {
+            if (!isEmail(myValue)) {
                 item.errors.push(defaults.emailAddressModel.invalid);
                 state.invalid[type] = true;
             }
 
             Object.assign(item, {
-                value,
+                value: myValue,
                 errors: item.errors
             });
 
-
+            if (!isEmail(myValue)) {
+                return true
+            }
 
             state[type] = state[type].map((item)=>{
-                if(item.value.toLowerCase() === value.toLowerCase() && item.id !== id){
+                if(item.value === myValue && item.id !== id){
                     state.invalid[type] = true;
                     if(!item.errors.find((error)=>(error.id === 'duplicated'))) {
                         item.errors.push(defaults.emailAddressModel.duplicated);
@@ -179,6 +211,7 @@ export default {
         emailRemove(state,payload){
             const {type, id} = payload;
             state[type] = state[type].filter((item)=>item.id !== id);
+            this.commit('emailClearDuplication', { type });
         },
 
         emailUpdateSubject(state,payload){
@@ -199,12 +232,9 @@ export default {
             state.invalid.html = (state.html.length === 0);
         },
 
-        emailSend(state,payload){
-            // TODO: move this url composition to the main store core
-            return request
-                .post(`${window.location.protocol}//api.${window.location.hostname}:${window.location.port}`, payload)
-                .then(()=>console.log('Success'))
-                .catch((err)=>err);
+        emailSendStatus(state,payload){
+            state.emailSendStatus = payload.status;
+            state.emailSendStatusMessage = payload.message;
         }
     },
 
@@ -260,7 +290,29 @@ export default {
         },
 
         emailSend(ctx,payload){
-            this.commit('emailSend',payload);
+            this.commit('emailSendStatus',{
+                status: 'sending',
+                message: 'Working to sending your email'
+            });
+
+            // TODO: move this url composition to the main store core
+            return request({
+                    method: 'POST',
+                    url:`${window.location.protocol}//api.${window.location.hostname}:${window.location.port}`,
+                    data: payload
+                })
+                .then(()=>{
+                    this.commit('emailSendStatus',{
+                        status: 'success',
+                        message: 'Email Sent =)'
+                    });
+                })
+                .catch((err)=>{
+                    this.commit('emailSendStatus',{
+                        status: 'error',
+                        message: `Ooops... something went wrong / ${(err.response) ? err.response.data : ''}`
+                    });
+                });
         }
     }
 }

@@ -3,7 +3,7 @@
 
 #### Get Started
 ````bash
-npm install
+npm run install-deps
 ````
 set the config file
 /src/env.json
@@ -53,6 +53,33 @@ all compiled files to /dist folder
 npm run build
 ````
 
+#### Docker
+build docker image
+````bash
+npm run docker-build
+````
+start docker image on port 8080
+````bash
+npm run docker-start
+````
+
+build and run (after finished just open localhost:8080)
+````bash
+npm run build && npm run build-docker && npm run docker-start
+````
+
+##### interface + api running on localhost:8080
+##### api running on api.localhost:8080
+
+
+<br><br><br><br><br><br>
+#### Tests
+not all tests implemented :P
+````bash
+npm run test
+````
+
+
 #### starting service Development
 ````bash
 npm run start-prod
@@ -62,22 +89,11 @@ or
 NODE_PORT=9999 npm run start-prod
 ````
 
-#### Tests
-not all tests implemented
-````bash
-mocha test/AlgaRequest.js --compilers js:babel-core/register
-````
-or 
-````bash
-mocha test/Mail.js --compilers js:babel-core/register
-````
-
-
 
 <br><br>
 ## Upcoming
 1. full TDD
-2. compilation to ES5 using webpack
+2. replace gulp to webpack
 3. Other services to use as a roulette to send emails
 4. Get the roulette mode better when a service fails
 5. Refactor some TODOs in the code for a better solution.

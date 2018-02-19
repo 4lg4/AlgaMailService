@@ -3,6 +3,9 @@
  */
 "use strict";
 
+
+// TODO: abstract the tailor made server into a class lib/AlgaServer.js (upcoming version)
+
 import env from './env.json'
 import MailService from './lib/MailService'
 
@@ -65,7 +68,10 @@ const staticCall = (req,res)=>{
             resolve(data);
         });
     }).then((data)=>{
-        res.writeHead(200, {'Content-Type': types[path.extname(file)]});
+        res.writeHead(200, {
+            // 'Access-Control-Allow-Origin': '*',
+            'Content-Type': types[path.extname(file)]
+        });
         res.write(data);
         res.end();
     });
@@ -74,13 +80,12 @@ const staticCall = (req,res)=>{
 const apiCall = (req,res)=>{
     return parseBody(req)
         .then((body)=>{
-
             if(req.method !== "POST") {
                 res.writeHead(405, {'Content-Type': 'application/json'});
-                res.end(`{
-                            "code": 405,
-                            "message": "Method Not Allowed"
-                        }`);
+                res.end(JSON.stringify({
+                    "code": 405,
+                    "message": "Method Not Allowed"
+                }));
 
                 return true;
             }
@@ -90,7 +95,8 @@ const apiCall = (req,res)=>{
                 body
             });
 
-            return algaMail.send()
+            return algaMail
+                .send()
                 .then((success)=>{
                     res.writeHead(200, {'Content-Type': 'application/json'});
                     res.end(JSON.stringify({
@@ -105,8 +111,19 @@ const server = http.createServer((req, res)=>{
     return Promise
         .resolve()
         .then(()=>{
+            // TODO: add better security for this implementation
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            res.setHeader('Access-Control-Request-Method', '*');
+            res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET');
+            res.setHeader('Access-Control-Allow-Headers', '*');
+            if ( req.method === 'OPTIONS' ) {
+                res.writeHead(200);
+                res.end();
+                return;
+            }
+
             // test minimal service configuration
-            if(env.services && !Object.keys(env.services)[0].url){
+            if(env.services && !env.services[Object.keys(env.services)[0]].url){
                 res.writeHead(500, {'Content-Type': 'application/json'});
                 return res.end(JSON.stringify({
                     "code": 500,
@@ -122,6 +139,7 @@ const server = http.createServer((req, res)=>{
             return apiCall(req,res);
         })
         .catch((err)=> {
+            console.error('##### err',err);
             res.writeHead(500, {'Content-Type': 'application/json'});
             res.end(JSON.stringify({
                 "code": 500,

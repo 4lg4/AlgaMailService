@@ -11,8 +11,7 @@ gulp.task('default',function () {
 
 gulp.task('tasks',[
     'compile',
-    'copy',
-    'copy-frontend'
+    'copy'
 ]);
 
 gulp.task('compile', function(cb) {

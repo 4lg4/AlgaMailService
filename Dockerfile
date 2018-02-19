@@ -10,4 +10,4 @@ RUN chown app:app -R /app && chmod 777 /tmp
 
 WORKDIR /app
 EXPOSE 3000
-CMD ["npm", "start"]
+CMD ["node", "index.js"]

@@ -7,11 +7,11 @@
     "test": "test"
   },
   "scripts": {
-    "test": "echo \"go to README\" && exit 1",
-    "install": "npm install && cd ./src/frontend && npm install",
+    "test": "mocha test/AlgaRequest.js --compilers js:babel-core/register && cd ./src/frontend && npm run test",
+    "install-deps": "npm install && cd ./src/frontend && npm install",
     "start-prod": "node ./dist/index.js ",
     "start-dev": "babel-node ./src/index.js",
-    "build": "gulp && cd ./src/frontend && npm run build",
+    "build": "gulp && cd ./src/frontend && npm run build && cd ../ && gulp copy-frontend",
     "build-docker": "docker build -t alga-mail-service:latest ./",
     "start-docker": "docker container rm alga-mail-service -f || echo 'already removed' && docker container run -d -p 8080:3000 --name alga-mail-service alga-mail-service:latest"
   },

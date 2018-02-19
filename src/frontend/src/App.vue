@@ -13,7 +13,7 @@
             <AppCard theTitle="New Email">
                 <div slot="body">
 
-                    <AppAlert v-if="duplicates" theTitle="Ooops... something went wrong" @close="clearErrors" :close="!duplicates">{{duplicates}}</AppAlert>
+                    <AppAlert v-if="emailGetMessages.message" :type="emailGetMessages.status">{{emailGetMessages.message}}</AppAlert>
 
                     <div class="row">
                         <div class="col-sm-12 col-md-6">
@@ -95,12 +95,14 @@
         },
         data(){
             return {
-                isHtmlEmail: false
+                isHtmlEmail: false,
+                globalMessages: ''
             }
         },
         computed: {
             ...mapGetters([
-                'to','cc', 'getEmail', 'emailIsInvalid', 'getEmailText', 'getEmailHtml', 'duplicates'
+                'to','cc', 'getEmail', 'emailIsInvalid', 'getEmailText',
+                'getEmailHtml', 'emailGetMessages'
             ])
         },
         methods: {
@@ -109,14 +111,13 @@
                 'emailUpdateCc', 'emailRemoveCc', 'emailUpdateSubject',
                 'emailUpdateText', 'emailUpdateHtml', 'emailSend'
             ]),
-            clearErrors() {
-                this.errors = null;
-            },
             setIsHtmlEmail(value){
                 this.isHtmlEmail = value;
             },
             submit() {
-                this.emailSend(this.getEmail).then((a)=>console.log('emailSend', a));
+//                const dev = { "to": "akgleal@gmail.com", "cc": "adriano@workit.rocks, paula.karolineceron@gmail.com", "bcc": "", "subject": "subject", "text": "text pure", "html": "<div>My crazy HTML</div>" }
+//                this.emailSend(dev);
+                this.emailSend(this.getEmail);
             }
         }
 
