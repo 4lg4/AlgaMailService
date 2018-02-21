@@ -298,7 +298,8 @@ export default {
             // TODO: move this url composition to the main store core
             return request({
                     method: 'POST',
-                    url:`${window.location.protocol}//api.${window.location.hostname}:${window.location.port}`,
+                    // url:`${window.location.protocol}//api.${window.location.hostname}:${window.location.port}`,
+                    url:`api`,
                     data: payload
                 })
                 .then(()=>{
@@ -310,7 +311,7 @@ export default {
                 .catch((err)=>{
                     this.commit('emailSendStatus',{
                         status: 'error',
-                        message: `Ooops... something went wrong / ${(err.response) ? err.response.data : ''}`
+                        message: `Ooops... something went wrong / ${(err.response && err.response.data) ? err.response.data.message : ''}`
                     });
                 });
         }

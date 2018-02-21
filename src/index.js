@@ -53,9 +53,10 @@ const staticCall = (req,res)=>{
         '': 'text/html'
     };
 
-    let file = `${__dirname}/frontend${req.url}`;
-    if (req.url === "/") {
-        file = `${__dirname}/frontend${req.url}index.html`;
+    const url = req.url.replace('/mail-service', '');
+    let file = `${__dirname}/frontend${url}`;
+    if (url === "/") {
+        file = `${__dirname}/frontend${url}index.html`;
     }
 
     return new Promise((resolve,reject)=> {
@@ -131,12 +132,16 @@ const server = http.createServer((req, res)=>{
                 }));
             }
 
-            // TODO: change this validation to regex more accurated
-            if(req.headers.host.indexOf('api.') === -1) {
-                return staticCall(req,res);
+            if(req.method === 'POST') {
+                return apiCall(req, res);
             }
 
-            return apiCall(req,res);
+            // TODO: change this validation to regex more accurated
+            // if(req.headers.host.indexOf('api.') === -1) {
+            //     return staticCall(req,res);
+            // }
+
+            return staticCall(req,res);
         })
         .catch((err)=> {
             console.error('##### err',err);
