@@ -26,13 +26,20 @@ set the config file
     "debug": "true"  // empty === false
 }
 ````
+
+#### Build & run
+all compiled files to /dist folder
+````bash
+npm run build && NODE_PORT=8080 npm run start-prod
+````
+
 #### starting service Development
 ````bash
 npm run start-dev
 ````
 or
 ````bash
-NODE_PORT=9999 npm run start-dev
+NODE_PORT=8080 npm run start-dev
 ````
 
 #### Testing the service
@@ -48,11 +55,6 @@ POST https://localhost:3000
 }      
 ````
 
-#### Build
-all compiled files to /dist folder
-````bash
-npm run build
-````
 
 #### Docker
 build docker image
