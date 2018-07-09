@@ -1,13 +1,10 @@
-/**
- * Created by www.Alga.me on 13/2/18.
- */
-"use strict";
+const express = require('express');
+const bodyParser = require('body-parser');
+const MailService = require('./backend/MailService');
 
+express.static(root, [options])
+app.use(express.static('./frontend/dist'))
 
-// TODO: abstract the tailor made server into a class lib/AlgaServer.js (upcoming version)
-
-import env from './env.json'
-import MailService from './lib/MailService'
 
 import fs from 'fs'
 import path from 'path'

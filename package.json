@@ -13,7 +13,9 @@
     "start-dev": "babel-node ./src/index.js",
     "build": "gulp && cd ./src/frontend && npm run build && cd ../ && gulp copy-frontend",
     "build-docker": "docker build -t alga-mail-service:latest ./",
-    "start-docker": "docker container rm alga-mail-service -f || echo 'already removed' && docker container run -d -p 8080:3000 --name alga-mail-service alga-mail-service:latest"
+    "start-docker": "docker container rm alga-mail-service -f || echo 'already removed' && docker container run -d -p 8080:3000 --name alga-mail-service alga-mail-service:latest",
+    "test:unit": "mocha ./test/**/unit/**/* --require test/setup.js",
+    "test:unit:watch": "mocha ./test/**/unit/**/* --require test/setup.js --watch"
   },
   "keywords": [],
   "author": "",
@@ -22,13 +24,14 @@
     "node": ">8.9.4"
   },
   "devDependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-core": "^6.26.0",
-    "babel-preset-es2015": "^6.24.1",
-    "babel-register": "^6.26.0",
+    "chai": "^4.1.2",
+    "chai-http": "^4.0.0",
     "del": "^3.0.0",
-    "gulp": "^3.9.1",
-    "gulp-babel": "^7.0.1",
-    "mocha": "^5.0.0"
+    "eslint": "^5.0.1",
+    "eslint-config-google": "^0.9.1",
+    "mocha": "^5.2.0"
+  },
+  "dependencies": {
+    "dotenv-safe": "^6.0.0"
   }
 }

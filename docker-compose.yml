@@ -1,0 +1,20 @@
+version: '3.5'
+
+services:
+  bot:
+    build: .
+    environment:
+      - SERVICES_MAILGUN_URL=https://mailgun.com
+      - SERVICES_MAILGUN_AUTH=@@MailGun@@
+      - SERVICES_SENDGRID_URL=https://sendgrid.com
+      - SERVICES_SENDGRID_AUTH=@@SendGrid@@
+      - MAX_ATTEMPTS=2
+      - FROM=akgleal@gmail.com
+      - PREFERRED=SENDGRID
+      - DEBUG=true
+
+    ports:
+      - "4040:3000"
+
+    volumes:
+      - "./src/frontend/dist:/app:rw"
