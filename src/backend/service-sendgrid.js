@@ -23,12 +23,7 @@ const generateEmailList = (list, unique) => {
   return generatedList;
 };
 
-
-const send = ({url, auth, subject, from, to, cc, bcc, html, text}) => {
-  from = process.env.FROM;
-  url = process.env.SERVICES_SENDGRID_URL;
-  auth = process.env.SERVICES_SENDGRID_AUTH;
-
+const send = ({url = process.env.SERVICES_SENDGRID_URL, from = process.env.FROM, auth = process.env.SERVICES_SENDGRID_AUTH, subject, to, cc, bcc, html, text}) => {
   if (!url || !auth || !from) {
     throw new Error('Service SendGrid: from, url and auth are required, see README for more info');
   }
@@ -45,25 +40,22 @@ const send = ({url, auth, subject, from, to, cc, bcc, html, text}) => {
   if (cc) {
     personalizations[0].cc = generateEmailList(cc);
     if (!personalizations[0].cc) {
-      throw new Error('cc should be a string or an Array of strings');
+      throw new Error('cc should be an email string or an Array of email strings');
     }
   }
 
   if (bcc) {
     personalizations[0].bcc = generateEmailList(bcc);
     if (!personalizations[0].bcc) {
-      throw new Error('bcc should be a string or an Array of strings');
+      throw new Error('bcc should be an email string or an Array of email strings');
     }
   }
 
-  if (!from || !to || !subject || (!text && !html)) {
-    throw new Error('from, to, subject, text / html are required');
+  if (!to || !subject || (!text && !html)) {
+    throw new Error('to, subject, text / html are required');
   }
 
-  const duplicates = checkDuplicationInArray(to, cc)
-    .concat(checkDuplicationInArray(to, bcc))
-    .concat(checkDuplicationInArray(cc, bcc));
-
+  const duplicates = checkDuplicationInArray(to.concat(cc || []).concat(bcc || []));
   if (duplicates.length > 0) {
     throw new Error(`to, cc, bcc email addresses should be unique. Duplicates: ${duplicates.toString()}`);
   }
@@ -96,6 +88,10 @@ const send = ({url, auth, subject, from, to, cc, bcc, html, text}) => {
 
   if (process.env.DEBUG) {
     logIt(options);
+  }
+
+  if (process.env.FAKE_IT) {
+    return options;
   }
 
   return post(options);
